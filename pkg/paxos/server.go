@@ -85,7 +85,6 @@ func (server *Server) copy() *Server {
 	}
 
 	var copyServer Server
-	copyServer.SetResponse(server.Response)
 	copyServer.me = server.me
 	// shallow copy is enough, assuming it won't change
 	copyServer.peers = server.peers
@@ -115,8 +114,9 @@ func (server *Server) NextTimer() base.Timer {
 	return server.timeout
 }
 
-// A timer tick of Paxos server will close the current Paxos round and start a new one if no consensus reached so far,
-// which means the server after timer tick will reset and restart from the first phase if Paxos not decided.
+// A TimeoutTimer tick simulates the situation where a proposal procedure times out.
+// It will close the current Paxos round and start a new one if no consensus reached so far,
+// i.e. the server after timer tick will reset and restart from the first phase if Paxos not decided.
 // The timer will not be activated if an agreed value is set.
 func (server *Server) TriggerTimer() []base.Node {
 	if server.timeout == nil {
