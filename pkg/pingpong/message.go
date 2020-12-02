@@ -1,36 +1,47 @@
 package pingpong
 
-import "coms4113/hw5/pkg/state"
+import (
+	"coms4113/hw5/pkg/base"
+)
 
 type PingMessage struct {
-	from state.Address
-	to state.Address
+	base.CoreMessage
 
 	// value
 	Id int
 }
 
-func (p *PingMessage) From() state.Address {
-	return p.from
+func (p *PingMessage) Hash() uint64 {
+	return base.Hash("ping-message", *p)
 }
 
-func (p *PingMessage) To() state.Address {
-	return p.to
+func (p *PingMessage) Equals(other base.Message) bool {
+	otherP, ok := other.(*PingMessage)
+
+	return ok && p.CoreMessage.Equals(&otherP.CoreMessage) && p.Id == otherP.Id
 }
 
 type PongMessage struct {
-	from state.Address
-	to state.Address
+	base.CoreMessage
 
 	// value
 	Id int
 }
 
-func (p *PongMessage) From() state.Address {
-	return p.from
+func (p *PongMessage) Hash() uint64 {
+	return base.Hash("pong-message", *p)
 }
 
-func (p *PongMessage) To() state.Address {
-	return p.to
+func (p *PongMessage) Equals(other base.Message) bool {
+	otherP, ok := other.(*PongMessage)
+	if !ok {
+		return false
+	}
+
+	return p.CoreMessage.Equals(&otherP.CoreMessage) && p.Id == otherP.Id
 }
 
+type PingCommand struct {
+	To base.Address
+	Id int
+}
