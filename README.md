@@ -127,7 +127,7 @@ In Part C, you will use the model checker to test several scenarios from the exa
 
 All the scenario tests exist in `pkg/paxos/scenario_test.go`. Some basic tests are well designed, you could run them directly to verify if your implementation is correct. These basic tests are `TestBasic`, `TestBasic2`, `TestBfs1`, `TestBfs2`, `TestInvariant`, and `TestPartition1`. Some of them are modified from the slide mentioned above. 
 
-Besides running these well-designed tests, you are required to implement a few scenario tests to show your Paxos is correct. You are asked to use predicates to guide a Paxos system to reach some states covered by the slide. 
+Besides running these well-designed tests, you are required to implement a few scenario tests to show your Paxos is correct. You are asked to use predicates to guide a Paxos system to reach some states covered by the slide. The place to put your predicates is `tesr_student.go`
 
 Please read the function `reachState` and you will know how the predicates work. Here is a brief introduction to the predicates: since the number of states explored by BFS will grow really fast, we should set up a few intermediate states as the checking point of BFS to reduce the possible states. That is to say, at any intermediate state, we use BFS to find the next state, and then do the BFS from the next state, so far and so on. Every time a state fulfills a predicate it will be set as a new starting point of BFS. Thus, the predicates will guide the program to reaching target states set by us without exploring too many states.
 
@@ -136,6 +136,9 @@ An example is provided on how to design the intermediate state predicate. Please
 The first scenario you need to complete is `TestCase5Failures`. You are required to fill in a list of predicates so that the program first has A2 rejects P1 and then have S3 be the first server knowing a consensus is reached. Your predicates should be completed in the function `ToA2RejectP1` and `ToConsensusCase5` at `test_student.go`.
 
 The second scenario you need to complete is `TestNotTerminate`. You should guide the scenario test to first reject all the Accept requests from S1, then reject all the Accept requests from S3, and reject all the Accept requests from S1 again. Please fill in your predicates in the `NotTerminate*` functions at `test_student.go`.
+
+The third scenario is `TestConcurrentProposer`. It is from the [slide](https://docs.google.com/presentation/d/1ESICVkGl0zNY-95bTCGoJhbcYeiKGUQAuepUaITvJhg/edit#slide=id.g9f0e2b3fae_0_180). You need to guide the program to first let P1 propose, and then P3 proposes, but P1 get all rejects during the Accept phase. Finally P3 get
+All Oks from the Accept phase and reaches the Decide phase. 
 
 ### Handin procedure
 

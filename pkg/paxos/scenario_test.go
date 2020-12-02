@@ -570,3 +570,54 @@ func TestNotTerminate(t *testing.T) {
 		t.Fatal("cannot find a path where consensus not reached")
 	}
 }
+
+func concurrentProposerChecks() []func(s *base.State) bool {
+	p1GetsAllRejects := func(s *base.State) bool {
+		if !noConsensus(s) {
+			return false
+		}
+		s1 := s.Nodes()["s1"].(*Server)
+		valid := s1.proposer.Phase == Accept && s1.proposer.ResponseCount == 3 && s1.proposer.SuccessCount == 0
+		if valid {
+			fmt.Println("... p1 received rejects from all peers during Accept phase")
+		}
+		return valid
+	}
+
+	allKnowConsensus := func(s *base.State) bool {
+		s1 := s.Nodes()["s1"].(*Server)
+		s2 := s.Nodes()["s2"].(*Server)
+		s3 := s.Nodes()["s3"].(*Server)
+		valid := s1.agreedValue == "v3" && s2.agreedValue == "v3" && s3.agreedValue == "v3"
+		if valid {
+			fmt.Println("... all peers agreed on v3")
+		}
+		return valid
+	}
+
+	checks := concurrentProposer1()
+	checks = append(checks, p1GetsAllRejects)
+	checks = append(checks, concurrentProposer2()...)
+	checks = append(checks, allKnowConsensus)
+	return checks
+}
+
+// https://docs.google.com/presentation/d/1ESICVkGl0zNY-95bTCGoJhbcYeiKGUQAuepUaITvJhg/edit#slide=id.g9f0e2b3fae_0_180
+func TestConcurrentProposer(t *testing.T) {
+	fmt.Printf("Test: Concurrent proposers...\n")
+	peers := []base.Address{"s1", "s2", "s3"}
+	s := base.NewState(0, false, false)
+	server := NewServer(peers, 0, "v1")
+	s.AddNode(peers[0], server, nil)
+
+	server = NewServer(peers, 1, nil)
+	s.AddNode(peers[1], server, nil)
+
+	server = NewServer(peers, 2, "v3")
+	s.AddNode(peers[2], server, nil)
+
+	if nil == reachState(s, concurrentProposerChecks(), 5) {
+		t.Fatal("cannot find a path where we reach consensus on v3")
+	}
+	fmt.Printf("... Passed\n")
+}
