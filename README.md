@@ -76,11 +76,13 @@ Now you are familiar with the basic components of the model checker, you will im
 
 The Paxos server interfaces on the model checker are located in `pkg/paxos/server.go`, and message definitions are located in `pkg/paxos/message.go`. You’re expected to understand what each structure stands for and implement the message handler for Paxos servers `MessageHandler`, and the entry point for Paxos `StartPropose`. 
 
-The message handler takes in a message sent to the server, processes it, and generates corresponding new states representing the status of the server after the operation included in the message is applied. For example, if the message is a `ProposeRequest` then we should call the acceptor handler of the server and demonstrate the expected behaviors when a Paxos server receives a Propose request from a proposer.
+The message handler takes in a message sent to the server, processes it, and generates corresponding new nodes representing the new status of the server. For example, if the message is a `ProposeRequest` then we should call the acceptor handler of the server and demonstrate the expected behaviors when a Paxos server receives a Propose request from a proposer.
 
-`StartPropose` is the starting point for proposing a value for consensus. The proposed value is `InitialValue` if no `v_a` is received. The first task of this function is to renew the proposer's fields. Then send `ProposeRequest` to all its peers, including itself.
+To start with Part B, we could first focus on implementing the acceptors of Paxos. Based on the Paxos protocol, everytime an acceptor receives a message, it just responds to the message accordingly. Then we can work on the proposers. Think about it as a state machine, what should a proposer behave when it receives a message.  It’d be helpful to ponder over how many new states can be generated when a new message is received by a proposer. A noteworthy scenario would be that a proposer just received the majority of OK responses from peers, it may wait for the rest responses or enter the next phase. In the real world, these two states are exclusive by timeout. A server will not wait for all the responses when they exceed a certain limit of time. However, in the view of distributed systems, absolute time does not matter, so both states are possibly next states.
 
-To make life easier, we make the assumption that Paxos runs as a single goroutine without multi-threading: all peers are run by local function calls to mimic RPCs and no actual RPCs are involved. The model checker handles the state transitions and here we focus on specifying the new states based on the message we receive. As all function calls are local, every call will succeed, so we don’t need to consider retrying on timeout (i.e., don’t worry about `TimeoutTimer` in `pkg/paxos/timer.go`).
+The last place to work on is the `StartPropose`. It is the starting point for proposing a value for consensus. The proposed value is `InitialValue` if no `v_a` is received. The first task of this function is to renew the proposer's fields. Then send `ProposeRequest` to all its peers, including itself.
+
+To make life easier, we run the model checking as a single goroutine without multi-threading: the nodes send/receive messages in the network to mimic RPCs and no actual RPCs are involved. The model checker handles the state transitions and here we focus on the behaviors of individual nodes.
 
 Unit tests for your Paxos server implementation are provided in `pkg/paxos/unit_test.go`. They test the functionality of Paxos server message handler for the proposer/acceptor in Propose, Accept, Decide phases, and compare the returned new states with expected ones to check a basic level of correctness of your implementation.  You should be able to produce the following results before proceeding to Part C. 
 
@@ -106,7 +108,7 @@ Hint: Unlike your implementation of Paxos from Assignment 3, in this assignment 
 
 Hint: The infrastructure `State` handles state transitions and here we only focus on how a node evolves with the arrival of an event (message, timer).
 
-Hint: It’d be helpful to ponder over how many new states can be generated when a new message is applied. A noteworthy scenario would be that a proposer just received the majority of OK responses from peers, it may wait for the rest responses or enter the next phase. The former would simulate a situation in which the proposer has already received response from more than a majority of the acceptors before it had time to process the majority and transition to the next state. Because you don’t have concurrency in your Paxos code, you can simulate this situation with a transition that generates both states.
+Hint: The tick of `TimeoutTimer` simulates a situation where a proposal procedure is timeout and restarts again.
 
 Hint: We can tell what kind of message that message handler receives by a switch clause over `message.(type)` and enters the corresponding handler.
 
