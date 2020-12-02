@@ -1,7 +1,4 @@
----
-layout: homework
-title: 'Assignment 5: Model Checking Paxos’
----
+# Assignment 5: Model Checking Paxos
 
 ### All Parts Due: Wednesday Dec 16, 11:59:59pm EST
 
