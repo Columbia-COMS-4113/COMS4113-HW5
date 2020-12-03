@@ -137,8 +137,7 @@ The first scenario you need to complete is `TestCase5Failures`. You are required
 
 The second scenario you need to complete is `TestNotTerminate`. You should guide the scenario test to first reject all the Accept requests from S1, then reject all the Accept requests from S3, and reject all the Accept requests from S1 again. Please fill in your predicates in the `NotTerminate*` functions at `test_student.go`.
 
-The third scenario is `TestConcurrentProposer`. It is from the [slide](https://docs.google.com/presentation/d/1ESICVkGl0zNY-95bTCGoJhbcYeiKGUQAuepUaITvJhg/edit#slide=id.g9f0e2b3fae_0_180). You need to guide the program to first let P1 propose, and then P3 proposes, but P1 get all rejects during the Accept phase. Finally P3 get
-All Oks from the Accept phase and reaches the Decide phase. 
+The third scenario is `TestConcurrentProposer`. It is from the [slide](https://docs.google.com/presentation/d/1ESICVkGl0zNY-95bTCGoJhbcYeiKGUQAuepUaITvJhg/edit#slide=id.g9f0e2b3fae_0_180). You need to guide the program to first let P1 propose, and then P3 proposes, but P1 get all rejects during the Accept phase. Finally P3 get All Oks from the Accept phase and reaches the Decide phase. Your predicates should be completed in the function `concurrentProposer1` and `concurrentProposer2` at `test_student.go`.
 
 ### Handin procedure
 
@@ -175,8 +174,8 @@ paxos/paxos_test.go: 1 test for 10%.
 Part B: 1 test accounts for 10%.
 
 ```
-paxos/scenario_test.go: 8 well-designed tests, 2 to-be-completed tests 
+paxos/scenario_test.go: 8 well-designed tests, 3 to-be-completed tests 
 ```
-Part C: 8 well-designed tests account for 30%. Each failure will lead to 3.75% deduction. 2 to-be-completed tests account for 20%. 10% each.
+Part C: 8 well-designed tests account for 20%. Each failure will lead to 2.5% deduction. 3 to-be-completed tests account for 30%. 10% each.
 
 
