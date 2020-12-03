@@ -621,3 +621,141 @@ func TestConcurrentProposer(t *testing.T) {
 	}
 	fmt.Printf("... Passed\n")
 }
+
+// https://docs.google.com/presentation/d/1ESICVkGl0zNY-95bTCGoJhbcYeiKGUQAuepUaITvJhg/edit#slide=id.g9f109140a1_1_8
+// Reference code for implementing predicates, not graded.
+func TestFailChecks(t *testing.T) {
+	fmt.Printf("Test: Decides fail ...\n")
+	peers := []base.Address{"s1", "s2", "s3"}
+	s := base.NewState(0, false, false)
+	server := NewServer(peers, 0, "v1")
+	s.AddNode(peers[0], server, nil)
+
+	server = NewServer(peers, 1, nil)
+	s.AddNode(peers[1], server, nil)
+
+	server = NewServer(peers, 2, "v2")
+	s.AddNode(peers[2], server, nil)
+
+	if nil == reachState(s, decidesFailChecks(), 5) {
+		t.Fatal("cannot find a path where we reach consensus on v1")
+	}
+	fmt.Printf("... Passed\n")
+}
+
+func decidesFailChecks() []func(s *base.State) bool {
+	p1PreparePhase := func(s *base.State) bool {
+		s1 := s.Nodes()["s1"].(*Server)
+		valid := s1.proposer.Phase == Propose
+		if valid {
+			fmt.Println("... p1 entered Propose phase")
+		}
+		return valid
+	}
+	p1AcceptPhase := func(s *base.State) bool {
+		s1 := s.Nodes()["s1"].(*Server)
+		valid := false
+		otheroks := 0
+		if s1.proposer.Phase == Accept && s1.proposer.V == "v1" {
+			for _, m := range s.Network {
+				resp, ok := m.(*ProposeResponse)
+				if ok && resp.Ok && m.To() == s1.Address() {
+					otheroks++
+				}
+			}
+			if otheroks == 1 {
+				valid = true
+			}
+		}
+		if valid {
+			fmt.Println("... p1 entered Accept phase with proposed value v1")
+		}
+		return valid
+	}
+	p1DecidePhase := func(s *base.State) bool {
+		s1 := s.Nodes()["s1"].(*Server)
+		valid := false
+		otheroks := 0
+		if s1.proposer.Phase == Decide && s1.proposer.V == "v1" {
+			for _, m := range s.Network {
+				resp, ok := m.(*AcceptResponse)
+				if ok && resp.Ok && m.To() == s1.Address() {
+					otheroks++
+				}
+			}
+			if otheroks == 1 {
+				valid = true
+			}
+		}
+		if valid {
+			fmt.Println("... p1 entered Decide phase with proposed value v1")
+		}
+		return valid
+	}
+	p3PreparePhase := func(s *base.State) bool {
+		s3 := s.Nodes()["s3"].(*Server)
+		valid := s3.proposer.Phase == Propose && s3.proposer.V == "v2"
+		if valid {
+			fmt.Println("... p3 entered Propose phase with proposed value v2")
+		}
+		return valid
+	}
+	p3AcceptPhase := func(s *base.State) bool {
+		s3 := s.Nodes()["s3"].(*Server)
+		valid := false
+		otheroks := 0
+		if s3.proposer.Phase == Accept && s3.proposer.V == "v1" {
+			for _, m := range s.Network {
+				resp, ok := m.(*ProposeResponse)
+				if ok && resp.Ok && m.To() == s3.Address() {
+					otheroks++
+				}
+			}
+			if otheroks == 1 {
+				valid = true
+			}
+		}
+		if valid {
+			fmt.Println("... p3 entered Accept phase with proposed value v1")
+		}
+		return valid
+	}
+	p3DecidePhase := func(s *base.State) bool {
+		s3 := s.Nodes()["s3"].(*Server)
+		valid := false
+		otheroks := 0
+		if s3.proposer.Phase == Decide && s3.proposer.V == "v1" {
+			for _, m := range s.Network {
+				resp, ok := m.(*AcceptResponse)
+				if ok && resp.Ok && m.To() == s3.Address() {
+					otheroks++
+				}
+			}
+			if otheroks == 1 {
+				valid = true
+			}
+		}
+		if valid {
+			fmt.Println("... p3 entered Decide phase with proposed value v1")
+		}
+		return valid
+	}
+	allKnowConsensus := func(s *base.State) bool {
+		s1 := s.Nodes()["s1"].(*Server)
+		s2 := s.Nodes()["s2"].(*Server)
+		s3 := s.Nodes()["s3"].(*Server)
+		valid := s1.agreedValue == "v1" && s2.agreedValue == "v1" && s3.agreedValue == "v1"
+		if valid {
+			fmt.Println("... all peers agreed on v1")
+		}
+		return valid
+	}
+	return []func(s *base.State) bool{
+		p1PreparePhase,
+		p1AcceptPhase,
+		p1DecidePhase,
+		p3PreparePhase,
+		p3AcceptPhase,
+		p3DecidePhase,
+		allKnowConsensus}
+}

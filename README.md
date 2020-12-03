@@ -125,13 +125,13 @@ implemented the Paxos state machine in the model checker’s interface.
 
 In Part C, you will use the model checker to test several scenarios from the examples provided in lecture [Paxos scenarios](https://columbia.github.io/ds1-class/lectures/07-paxos-functioning-slides.pdf).  The tests check that there exists a path from a given starting state to a given end state that passes through several intermediate states.
 
-All the scenario tests exist in `pkg/paxos/scenario_test.go`. Some basic tests are well designed, you could run them directly to verify if your implementation is correct. These basic tests are `TestBasic`, `TestBasic2`, `TestBfs1`, `TestBfs2`, `TestInvariant`, and `TestPartition1`. Some of them are modified from the slide mentioned above. 
+All the scenario tests exist in `pkg/paxos/scenario_test.go`. Some basic tests are well designed, you could run them directly to verify if your implementation is correct. These basic tests are `TestBasic`, `TestBasic2`, `TestBfs1`, `TestBfs2`, `TestBfs3`, `TestInvariant`, and `TestPartition1`. Some of them are modified from the slide mentioned above. 
 
 Besides running these well-designed tests, you are required to implement a few scenario tests to show your Paxos is correct. You are asked to use predicates to guide a Paxos system to reach some states covered by the slide. The place to put your predicates is `tesr_student.go`
 
 Please read the function `reachState` and you will know how the predicates work. Here is a brief introduction to the predicates: since the number of states explored by BFS will grow really fast, we should set up a few intermediate states as the checking point of BFS to reduce the possible states. That is to say, at any intermediate state, we use BFS to find the next state, and then do the BFS from the next state, so far and so on. Every time a state fulfills a predicate it will be set as a new starting point of BFS. Thus, the predicates will guide the program to reaching target states set by us without exploring too many states.
 
-An example is provided on how to design the intermediate state predicate. Please read the `TestPartition2` case. This test explores a scenario where S1 and S3 cannot talk to each other while S1 first acquires the consented value of "v1" and then S3 also learns the same consented value. The state predicates are coded in `checksForPartition2` function. The predicates first guide the program to reach consensus by P1 and then reach the consensus again by P3.
+An example is provided on how to design the intermediate state predicate. Please read the `TestPartition2` case. This test explores a scenario where S1 and S3 cannot talk to each other while S1 first acquires the consented value of "v1" and then S3 also learns the same consented value. The state predicates are coded in `checksForPartition2` function. The predicates first guide the program to reach consensus by P1 and then reach the consensus again by P3. Another example is `TestFailChecks`. This test case is not graded, and it will give you more hints to design predicates.
 
 The first scenario you need to complete is `TestCase5Failures`. You are required to fill in a list of predicates so that the program first has A2 rejects P1 and then have S3 be the first server knowing a consensus is reached. Your predicates should be completed in the function `ToA2RejectP1` and `ToConsensusCase5` at `test_student.go`.
 
@@ -169,12 +169,15 @@ pingpong/search_test.go: 7 tests
 Part A: 11 tests contribute to 40%. Each failure will lead to deduction of 4%, i.e. you need to pass at least two tests to get credits.
 
 ```
-paxos/paxos_test.go: 1 test for 10%.
+paxos/paxos_test.go: 1 test.
 ```
 Part B: 1 test accounts for 10%.
 
 ```
 paxos/scenario_test.go: 8 well-designed tests, 3 to-be-completed tests 
+
+well-designed tests: TestBasic, TestBasic2, TestBfs1, TestBfs2, TestBfs3, TestInvariant, TestPartition1 and TestPartition2
+3 to-be-completed tests: TestCase5Failures, TestNotTerminate, TestConcurrentProposer.
 ```
 Part C: 8 well-designed tests account for 20%. Each failure will lead to 2.5% deduction. 3 to-be-completed tests account for 30%. 10% each.
 
