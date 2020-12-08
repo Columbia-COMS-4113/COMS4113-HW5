@@ -178,8 +178,14 @@ func (s *State) HandleMessage(index int, deleteMessage bool) (result []*State) {
 }
 
 func (s *State) DeleteMessage(index int) {
-	//TODO: implement it
-	panic("implement me")
+	// Remove the i-th message
+	message := s.Network[index]
+	s.Network[index] = s.Network[len(s.Network)-1]
+	s.Network = s.Network[:len(s.Network)-1]
+
+	// remove from the hash
+	s.networkHash -= message.Hash()
+	s.hashSorted = false
 }
 
 func (s *State) Receive(messages []Message) {
