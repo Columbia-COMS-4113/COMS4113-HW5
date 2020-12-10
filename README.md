@@ -146,7 +146,7 @@ You hand in your assignment as before, but all three parts at once.
 ```bash
 $ git commit -am "[you fill me in]"
 $ git tag -a -m "i finished assignment 5" a5handin
-$ git push origin master
+$ git push origin students
 $ git push origin a5handin
 ```
 
