@@ -233,17 +233,21 @@ func TestUnit(t *testing.T) {
 		t.Fatalf("unexpected result\n")
 	}
 
+	var ptr *base.Node
+
 	if newNodes[0].Equals(&expectedNodes[0]) && newNodes[1].Equals(&expectedNodes[1]) {
 
 		if !compareMessages(newNodes[0].(*Server).Response, expectedMessages) {
 			t.Fatalf("The messages in new node do not match expected messages\n")
 		}
+		ptr = &newNodes[0]
 
 	} else if newNodes[0].Equals(&expectedNodes[1]) && newNodes[1].Equals(&expectedNodes[0]) {
 
 		if !compareMessages(newNodes[1].(*Server).Response, expectedMessages) {
 			t.Fatalf("The messages in new node do not match expected messages\n")
 		}
+		ptr = &newNodes[1]
 
 	} else {
 		t.Fatalf("unexpected result\n")
@@ -251,7 +255,7 @@ func TestUnit(t *testing.T) {
 
 	fmt.Printf("  ... Passed\n")
 
-	servers[0] = *newNodes[0].(*Server)
+	servers[0] = *(*ptr).(*Server)
 
 	fmt.Printf("Test: Acceptor - Handle Accept Request ...\n")
 
@@ -276,7 +280,6 @@ func TestUnit(t *testing.T) {
 	if !servers[1].Equals(&expectedNode) {
 		t.Fatalf("unexpected result\n")
 	}
-	servers[1] = servers[1]
 
 	// acceptor rejected Accept request
 	anotherMessage := &AcceptRequest{
@@ -369,12 +372,14 @@ func TestUnit(t *testing.T) {
 		if !compareMessages(newNodes[0].(*Server).Response, expectedMessages) {
 			t.Fatalf("The messages in new node do not match expected messages\n")
 		}
+		ptr = &newNodes[0]
 
 	} else if newNodes[0].Equals(&expectedNodes[1]) && newNodes[1].Equals(&expectedNodes[0]) {
 
 		if !compareMessages(newNodes[1].(*Server).Response, expectedMessages) {
 			t.Fatalf("The messages in new node do not match expected messages\n")
 		}
+		ptr = &newNodes[1]
 
 	} else {
 		t.Fatalf("unexpected result\n")
@@ -382,7 +387,7 @@ func TestUnit(t *testing.T) {
 
 	fmt.Printf("  ... Passed\n")
 
-	servers[0] = *newNodes[0].(*Server)
+	servers[0] = *(*ptr).(*Server)
 
 	fmt.Printf("Test: Acceptor - Handle Decide Request ...\n")
 
