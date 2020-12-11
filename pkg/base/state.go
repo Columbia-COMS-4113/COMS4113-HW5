@@ -55,6 +55,18 @@ func (s *State) AddNode(address Address, node Node, blockList []Address) {
 	return
 }
 
+func (s *State) UpdateNode(address Address, node Node) {
+	if old, ok := s.nodes[address]; ok {
+		s.nodeHash -= old.Hash()
+	} else {
+		panic("node does not exist")
+	}
+
+	s.nodes[address] = node
+	s.nodeHash += node.Hash()
+	s.Receive(node.HandlerResponse())
+}
+
 func (s *State) Nodes() map[Address]Node {
 	return s.nodes
 }
