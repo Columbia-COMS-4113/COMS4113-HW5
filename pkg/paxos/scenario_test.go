@@ -380,7 +380,7 @@ func reachState(start *base.State,
 		s = res.Targets[0]
 	}
 
-	return start
+	return s
 }
 
 // Set up a few intermediate state predicates to lead the initial state to the final state
